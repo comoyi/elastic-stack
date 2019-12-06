@@ -15,7 +15,8 @@ services:
     networks: 
       - elastic-stack
     volumes:
-      - ${ELASTICSEARCH_DATA_PATH}:/usr/share/elasticsearch/data
+      - ./elasticsearch/config:/usr/share/elasticsearch/config:ro
+      # - ${ELASTICSEARCH_DATA_PATH}:/usr/share/elasticsearch/data
     environment:
       - "discovery.type=single-node"
 
@@ -31,6 +32,7 @@ services:
     networks: 
       - elastic-stack
     volumes:
+      - ./kibana/config:/usr/share/kibana/config:ro
       - ${KIBANA_DATA_PATH}:/usr/share/kibana/data
     depends_on:
       - elasticsearch
@@ -46,6 +48,8 @@ services:
       - elastic-stack
     depends_on:
       - elasticsearch
+    volumes:
+      - ./logstash/config:/usr/share/logstash/config:ro
 
 # Filebeat
 
