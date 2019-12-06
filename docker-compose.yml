@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+
+# Elasticsearch
+
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+    image: comoyi/elasticsearch:7.5.0
+    container_name: elasticsearch
+    ports:
+      - ${ELASTICSEARCH_HTTP_PORT}:9200
+      - ${ELASTICSEARCH_PORT}:9300
+    networks: 
+      - elastic-stack
+    volumes:
+      - elastic-stack-data:/usr/share/elasticsearch/data
+
+# Kibana
+
+  kibana:
+    build:
+      context: ./kibana
+    image: comoyi/kibana:7.5.0
+    container_name: kibana
+    ports:
+      - ${KIBANA_PORT}:5601
+    networks: 
+      - elastic-stack
+    depends_on:
+      - elasticsearch
+
+# Logstash
+
+  logstash:
+    build:
+      context: ./logstash
+    image: comoyi/logstash:7.5.0
+    container_name: logstash
+    networks: 
+      - elastic-stack
+    depends_on:
+      - elasticsearch
+
+# Filebeat
+
+  beats:
+    build:
+      context: ./beats/filebeat
+    image: comoyi/filebeat:7.5.0
+    container_name: filebeat
+    networks: 
+      - elastic-stack
+    depends_on:
+      - elasticsearch
+
+networks: 
+  elastic-stack:
+    name: elastic-stack
+
+volumes:
+  elastic-stack-data:
