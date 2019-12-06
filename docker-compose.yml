@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
 
@@ -15,7 +15,9 @@ services:
     networks: 
       - elastic-stack
     volumes:
-      - elastic-stack-data:/usr/share/elasticsearch/data
+      - ${ELASTICSEARCH_DATA_PATH}:/usr/share/elasticsearch/data
+    environment:
+      - "discovery.type=single-node"
 
 # Kibana
 
@@ -28,6 +30,8 @@ services:
       - ${KIBANA_PORT}:5601
     networks: 
       - elastic-stack
+    volumes:
+      - ${KIBANA_DATA_PATH}:/usr/share/kibana/data
     depends_on:
       - elasticsearch
 
@@ -45,7 +49,7 @@ services:
 
 # Filebeat
 
-  beats:
+  filebeat:
     build:
       context: ./beats/filebeat
     image: comoyi/filebeat:7.5.0
@@ -54,10 +58,8 @@ services:
       - elastic-stack
     depends_on:
       - elasticsearch
+      - kibana
 
 networks: 
   elastic-stack:
     name: elastic-stack
-
-volumes:
-  elastic-stack-data:
