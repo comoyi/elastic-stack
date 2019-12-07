@@ -1,0 +1,110 @@
+version: '3.5'
+
+services:
+
+# Elasticsearch
+
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+    image: comoyi/elasticsearch:7.5.0
+    container_name: elasticsearch
+    ports:
+      - ${ELASTICSEARCH_HTTP_PORT}:9200
+      - ${ELASTICSEARCH_PORT}:9300
+    networks: 
+      - elastic-stack
+    volumes:
+      - ./elasticsearch/config:/usr/share/elasticsearch/config:ro
+      - ${ELASTICSEARCH_DATA_PATH}:/usr/share/elasticsearch/data
+    environment:
+      - "discovery.type=single-node"
+
+# Kibana
+
+  kibana:
+    build:
+      context: ./kibana
+    image: comoyi/kibana:7.5.0
+    container_name: kibana
+    ports:
+      - ${KIBANA_PORT}:5601
+    networks: 
+      - elastic-stack
+    volumes:
+      - ./kibana/config:/usr/share/kibana/config:ro
+      - ${KIBANA_DATA_PATH}:/usr/share/kibana/data
+    depends_on:
+      - elasticsearch
+
+# Logstash
+
+  logstash:
+    build:
+      context: ./logstash
+    image: comoyi/logstash:7.5.0
+    container_name: logstash
+    networks: 
+      - elastic-stack
+    volumes:
+      - ./logstash/config:/usr/share/logstash/config:ro
+    depends_on:
+      - elasticsearch
+
+# Filebeat
+
+  filebeat:
+    build:
+      context: ./beats/filebeat
+    image: comoyi/filebeat:7.5.0
+    container_name: filebeat
+    networks: 
+      - elastic-stack
+    volumes:
+      - ./beats/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    depends_on:
+      - elasticsearch
+      - kibana
+
+# Metricbeat
+
+  metricbeat:
+    build:
+      context: ./beats/metricbeat
+    image: comoyi/metricbeat:7.5.0
+    container_name: metricbeat
+    networks:
+      - elastic-stack
+    volumes:
+      - ./beats/metricbeat/config/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    depends_on:
+      - elasticsearch
+      - kibana
+
+# Heartbeat
+
+  heartbeat:
+    build:
+      context: ./beats/heartbeat
+    image: comoyi/heartbeat:7.5.0
+    container_name: heartbeat
+    networks:
+      - elastic-stack
+    volumes:
+      - ./beats/heartbeat/config/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    depends_on:
+      - elasticsearch
+      - kibana
+
+networks: 
+  elastic-stack:
+    name: elastic-stack
