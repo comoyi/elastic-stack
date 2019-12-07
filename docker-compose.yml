@@ -48,6 +48,7 @@ services:
       - elastic-stack
     volumes:
       - ./logstash/config:/usr/share/logstash/config:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
     depends_on:
       - elasticsearch
 
