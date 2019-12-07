@@ -16,7 +16,7 @@ services:
       - elastic-stack
     volumes:
       - ./elasticsearch/config:/usr/share/elasticsearch/config:ro
-      # - ${ELASTICSEARCH_DATA_PATH}:/usr/share/elasticsearch/data
+      - ${ELASTICSEARCH_DATA_PATH}:/usr/share/elasticsearch/data
     environment:
       - "discovery.type=single-node"
 
@@ -46,10 +46,10 @@ services:
     container_name: logstash
     networks: 
       - elastic-stack
-    depends_on:
-      - elasticsearch
     volumes:
       - ./logstash/config:/usr/share/logstash/config:ro
+    depends_on:
+      - elasticsearch
 
 # Filebeat
 
@@ -60,9 +60,47 @@ services:
     container_name: filebeat
     networks: 
       - elastic-stack
+    volumes:
+      - ./beats/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
     depends_on:
       - elasticsearch
       - kibana
+
+# Metricbeat
+
+  metricbeat:
+    build:
+      context: ./beats/metricbeat
+    image: comoyi/metricbeat:7.5.0
+    container_name: metricbeat
+    networks:
+      - elastic-stack
+    volumes:
+      - ./beats/metricbeat/config/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    depends_on:
+      - elasticsearch
+      - kibana
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+
+# Heartbeat
+
+  heartbeat:
+    build:
+      context: ./beats/heartbeat
+    image: comoyi/heartbeat:7.5.0
+    container_name: heartbeat
+    networks:
+      - elastic-stack
+    volumes:
+      - ./beats/heartbeat/config/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+    depends_on:
+      - elasticsearch
+      - kibana
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
 
 networks: 
   elastic-stack:
