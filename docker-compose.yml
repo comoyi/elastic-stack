@@ -62,6 +62,9 @@ services:
       - elastic-stack
     volumes:
       - ./beats/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
     depends_on:
       - elasticsearch
       - kibana
@@ -77,12 +80,12 @@ services:
       - elastic-stack
     volumes:
       - ./beats/metricbeat/config/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
-    depends_on:
-      - elasticsearch
-      - kibana
     environment:
       - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
       - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    depends_on:
+      - elasticsearch
+      - kibana
 
 # Heartbeat
 
@@ -95,12 +98,12 @@ services:
       - elastic-stack
     volumes:
       - ./beats/heartbeat/config/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
-    depends_on:
-      - elasticsearch
-      - kibana
     environment:
       - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
       - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    depends_on:
+      - elasticsearch
+      - kibana
 
 networks: 
   elastic-stack:
