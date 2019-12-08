@@ -33,3 +33,10 @@ Up
 ```sh
 docker-compose up
 ```
+
+## Log mocker
+```sh
+chmod +x deploy-log-mocker.sh
+./deploy-log-mocker.sh
+```
+
