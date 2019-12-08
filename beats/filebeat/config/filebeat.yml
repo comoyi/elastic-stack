@@ -21,4 +21,5 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /var/log/app/*.log
+    - /tmp/log/app/**/*.log
+    # - /tmp/log/app/*/*.log
