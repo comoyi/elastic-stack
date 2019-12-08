@@ -40,3 +40,6 @@ chmod +x deploy-log-mocker.sh
 ./deploy-log-mocker.sh
 ```
 
+## Open Kibana
+[http://127.0.0.1:5601](http://127.0.0.1:5601)
+
